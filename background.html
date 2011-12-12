@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="content-type" content="text/html;charset=utf-8">
+		<script type="text/javascript" src="js/mootools-core-1.3.2-full-nocompat.js"></script>
+		<script type="text/javascript">
+			chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+				switch (request.method) {
+					case 'getLeftChannel':
+						var channel = localStorage.left;
+						sendResponse(channel);
+						break;
+					case 'getUpChannel':
+						var channel = localStorage.up;
+						sendResponse(channel);
+						break;
+					case 'getRightChannel':
+						var channel = localStorage.right;
+						sendResponse(channel);
+						break;
+					case 'getDownChannel':
+						var channel = localStorage.down;
+						sendResponse(channel);
+						break;
+					case 'openURL':
+						connection.send(JSON.encode({
+							method: 'openURL',
+							data: {
+								channel: request.data.channel,
+								url: sender.tab.url
+							}
+						}));
+						break;
+				}
+				/*
+					connection.send(JSON.encode({
+					method: 'openURL',
+					data: {
+						account: request.data.channel,
+						url: sender.tab.url
+					}
+				}));
+				*/
+			});
+			var connection = new WebSocket("ws://192.168.1.201:8124");
+			connection.onopen = function(event) {
+				console.log("[[[[[[OPEN]]]]]]");
+			}
+			connection.onmessage = function(event) {
+				try {
+					var message = JSON.decode(event.data);
+					switch (message.method) {
+						case 'getListenChannels':
+							connection.send(JSON.encode({
+								method: 'setListenChannels',
+								data: {
+									channels: localStorage.channelList
+								}
+							}));
+							break;
+						case 'getUserAccount':
+							connection.send(JSON.encode({
+								method: 'setUserAccount',
+								data: {
+									account: 'suttang'
+								}
+							}));
+							break;
+						case 'openURL':
+							chrome.tabs.create({url: message.data.url}, function() {
+								
+							});
+							break;
+					}
+				} catch (e) {
+					console.log(event.data);
+				}
+			}
+
+			connection.onclose = function(event) {
+				console.log("[[[[[[CLOSE]]]]]]");
+			}
+		</script>
+	</head>
+	<body>
+		
+	</body>
+</html>

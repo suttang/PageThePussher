@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<title>options</title>
+		<script type="text/javascript" src="js/mootools-core-1.3.2-full-nocompat.js"></script>
+		<script type="text/javascript">
+			var OptionPage = {
+				initialize: function() {
+					if (localStorage.left)
+						$$('table input[name="left"]')[0].value = localStorage.left;
+					if (localStorage.up)
+						$$('table input[name="up"]')[0].value = localStorage.up;
+					if (localStorage.right)
+						$$('table input[name="right"]')[0].value = localStorage.right;
+					if (localStorage.down)
+						$$('table input[name="down"]')[0].value = localStorage.down;
+					
+					OptionPage.refleshChannels();
+				},
+				save: function() {
+					localStorage.left = $$('table input[name="left"]')[0].value;
+					localStorage.up = $$('table input[name="up"]')[0].value;
+					localStorage.right = $$('table input[name="right"]')[0].value;
+					localStorage.down = $$('table input[name="down"]')[0].value;
+				},
+				addChannel: function(channelName) {
+					if (!localStorage.channelList)
+						localStorage.channelList = JSON.encode([]);
+					var channelList = JSON.decode(localStorage.channelList);
+					if (channelList.contains(channelName)) return;
+					channelList.push(channelName);
+					localStorage.channelList = JSON.encode(channelList);
+					OptionPage.refleshChannels();
+				},
+				refleshChannels: function() {
+					if (!localStorage.channelList)
+						localStorage.channelList = JSON.encode([]);
+					$('channelList').empty();
+					var channelList = JSON.decode(localStorage.channelList);
+					channelList.each(function(item, index) {
+						new Element('li', {
+							html: '<a class="hoge" href="javascript:deleteChannel('+index+')">x</a> ' + item
+						}).inject($('channelList'));
+					});
+				}
+			}
+			window.addEvent('domready', function(e) {
+				OptionPage.initialize();
+				$$('button[name="save"]')[0].addEvent('click', function() {
+					OptionPage.save();
+				});
+				$$('button[name="add"]')[0].addEvent('click', function() {
+					OptionPage.addChannel($$('input[name="addChannel"]')[0].value);
+					$$('input[name="addChannel"]')[0].value = '';
+				});
+				$$('input[name="addChannel"]')[0].addEvent('keydown', function(e) {
+					if (e.key == 'enter') {
+						OptionPage.addChannel($$('input[name="addChannel"]')[0].value);
+						$$('input[name="addChannel"]')[0].value = '';
+					}
+				});
+			});
+			function deleteChannel(channelIndex) {
+				var channelList = JSON.decode(localStorage.channelList);
+				var newChannelList = [];
+				channelList.each(function(item, index) {
+					if (channelIndex == index) return;
+					newChannelList.push(item);
+				});
+				localStorage.channelList = JSON.encode(newChannelList);
+				OptionPage.refleshChannels();
+			}
+			
+		</script>
+	</head>
+
+<body>
+<h1>Send channel setting</h1>
+<table>
+	<tr>
+		<th>Double tap Shift + ←</th>
+		<td><input type="text" name="left" size="20" value=""></td>
+	</tr>
+	<tr>
+		<th>Double tap Shift + ↑</th>
+		<td><input type="text" name="up" size="20" value=""></td>
+	</tr>
+	<tr>
+		<th>Double tap Shift + →</th>
+		<td><input type="text" name="right" size="20" value=""></td>
+	</tr>
+	<tr>
+		<th>Double tap Shift + ↓</th>
+		<td><input type="text" name="down" size="20" value=""></td>
+	</tr>
+</table>
+<hr>
+<h1>Receive channel setting</h1>
+<ul id="channelList">
+	
+</ul>
+<h2>Add</h2>
+<p>
+	<input type="text" name="addChannel" size="20" value="">
+	<button name="add">Add</button>
+</p>
+<hr>
+<button name="save">Save</button>
+</body>
+</html>

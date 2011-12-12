@@ -1,0 +1,16 @@
+{
+	"name": "PageChannel",
+	"version": "0.1",
+	"description": "Page Channeler",
+	"browser_action": {
+		"default_icon": "images/icon.png",
+		"default_title": "Page Channeler"
+	},
+	"content_scripts": [{
+		"matches": ["*://*/*"],
+		"js": ["js/content.js"]
+	}],
+	"options_page": "options.html",
+	"background_page": "background.html",
+	"permissions": ["tabs", "*://*/*"]
+}
